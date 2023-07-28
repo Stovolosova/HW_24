@@ -64,9 +64,9 @@ function viewUser (user) {
 
         document.body.appendChild(userDetails);
     }
-    userDetails.innerHTML = `
-    ${user.firstName} ${user.lastName}
-    <br>Age:${user.age}`;
+       userDetails.innerHTML = `${user.firstName}
+        ${user.lastName}
+        <br>Age:${user.age}`;
 }
 
 function editUser(user) {
@@ -75,26 +75,31 @@ function editUser(user) {
     ageInput.value = user.age;
 
     saveButton.addEventListener('click', () => {
-        saveUser(user);
+        saveUsers(user);
+        viewUser(user);
+        clearUserDetails();
     }); 
 }
 
-function saveUser (user) {
-        user.firstName = firstNameInput.value;
-        user.lastName = lastNameInput.value;
-        user.age = ageInput.value;
-
+function saveUsers (updatedUser) {
+    users.forEach(user => {
+        if (user.id === updatedUser.id) {
+            user.firstName = firstNameInput.value;
+            user.lastName = lastNameInput.value;
+            user.age = ageInput.value;
+        }
+    });
         updateLocalStorge();
-        clearInputs();
         displayUsers();
-    
+        clearInputs();
 }
 
 function confirmDeleteUser (user) {
-    let confirmation = confirm(`Are you sure you want to remove ${user.firstName}${user.lastName}?`);
+    let confirmation = confirm(`Are you sure you want to remove ${user.firstName} ${user.lastName}?`);
 
     if (confirmation) {
         deleteUser(user);
+        clearUserDetails();
     }
 }
 
@@ -108,25 +113,22 @@ function deleteUser(user) {
     }  
 }
 
- saveButton.addEventListener('click', () => {
-   saveUser();
- });
-
 function createUser() {
+    const ageValue = parseInt(ageInput.value);
+    if(isNaN(ageValue)) {
+        alert('Please, enter your age!');
+        ageInput.value = '';
+        return;
+    }
 
     const newUser = {
         id: users.length + 1,
         firstName: firstNameInput.value,
         lastName: lastNameInput.value,
-        age: ageInput.value
+        age: parseInt(ageInput.value) || 0
     };
-
     users.push(newUser);
-
-    firstNameInput.value = '';
-    lastNameInput.value = '';
-    ageInput.value = '';
-
+    clearInputs();
 
     updateLocalStorge();
     displayUsers();
@@ -138,12 +140,21 @@ function clearInputs () {
     ageInput.value = '';
 }
 
+function clearUserDetails() {
+    let userDetails = document.querySelector('.user-details');
+    if(userDetails) {
+        userDetails.remove();
+    }
+}
+
+cancelButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    clearInputs();
+});
+
 submitButton.addEventListener('click', (e) => {
-    e.preventDefault()
+    e.preventDefault();
     createUser();
 });
 
 displayUsers();
-
-
-
